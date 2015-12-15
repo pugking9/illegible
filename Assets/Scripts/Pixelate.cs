@@ -6,7 +6,6 @@ public class Pixelate : MonoBehaviour {
     public Color edgeColor;
     public float numTiles = 8.0f;
     public float threshhold = 1.0f;
-    public Camera renderTexCam;
 
     [HideInInspector]
     public Material blurMat;
@@ -19,11 +18,7 @@ public class Pixelate : MonoBehaviour {
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        TarTex = new RenderTexture(Screen.currentResolution.width, Screen.currentResolution.height, 16);
-
         blurMat = new Material(pixelater);
-
-        renderTexCam.targetTexture = TarTex;
 	}
 	
 	// Update is called once per frame
@@ -44,12 +39,18 @@ public class Pixelate : MonoBehaviour {
 
     }
 
-    void OnPostRender ()
+    void OnRenderImage (RenderTexture src, RenderTexture dest)
     {
+        TarTex = RenderTexture.GetTemporary(Screen.currentResolution.width, Screen.currentResolution.height, 16);
+        TarTex.filterMode = FilterMode.Point;
         blurMat.SetTexture("_MainTex", TarTex);
         blurMat.SetColor("_EdgeColor", edgeColor);
         blurMat.SetFloat("_NumTiles", numTiles);
         blurMat.SetFloat("_Threshhold", threshhold);
-        Graphics.Blit(TarTex, blurMat);
+        Graphics.Blit(src, TarTex, blurMat);
+        Graphics.Blit(TarTex, dest);
+        RenderTexture.ReleaseTemporary(TarTex);
+
+        //Graphics.Blit(TarTex, blurMat);
     }
 }
