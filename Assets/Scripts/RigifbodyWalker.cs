@@ -9,7 +9,11 @@ public class RigifbodyWalker : MonoBehaviour {
     public bool canJump = true;
     public float jumpHeight = 2.0f;
     public Camera playerCam;
+    public int sensitivity = 10;
+
     private bool grounded = false;
+    private float pitch = 0.0f;
+    private float yaw = 0.0f;
 
 
 
@@ -21,6 +25,14 @@ public class RigifbodyWalker : MonoBehaviour {
 
     void FixedUpdate()
     {
+        yaw += (Input.GetAxis("Mouse X") * (sensitivity / 10));
+        pitch -= (Input.GetAxis("Mouse Y") * (sensitivity / 10));
+
+        pitch = Mathf.Clamp(pitch, -90, 90);
+
+        transform.eulerAngles = new Vector3(0, yaw, 0);
+        playerCam.transform.eulerAngles = new Vector3(pitch, yaw, 0);
+
         Vector3 targetVelocity = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
         targetVelocity = transform.TransformDirection(targetVelocity);
         targetVelocity *= speed;
