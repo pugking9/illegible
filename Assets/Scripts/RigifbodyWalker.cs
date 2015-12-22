@@ -14,6 +14,8 @@ public class RigifbodyWalker : MonoBehaviour {
     private bool grounded = false;
     private float pitch = 0.0f;
     private float yaw = 0.0f;
+    private bool frozen = true;
+    
 
 
 
@@ -21,6 +23,8 @@ public class RigifbodyWalker : MonoBehaviour {
     {
         GetComponent<Rigidbody>().freezeRotation = true;
         GetComponent<Rigidbody>().useGravity = false;
+        yaw = transform.eulerAngles.y;
+        pitch = playerCam.transform.eulerAngles.x;
     }
 
     void FixedUpdate()
@@ -33,28 +37,31 @@ public class RigifbodyWalker : MonoBehaviour {
         transform.eulerAngles = new Vector3(0, yaw, 0);
         playerCam.transform.eulerAngles = new Vector3(pitch, yaw, 0);
 
-        Vector3 targetVelocity = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
-        targetVelocity = transform.TransformDirection(targetVelocity);
-        targetVelocity *= speed;
-
-        Vector3 velocity = GetComponent<Rigidbody>().velocity;
-        Vector3 velocityChange = (targetVelocity - velocity);
-        velocityChange.x = Mathf.Clamp(velocityChange.x, -maxVelocityChange, maxVelocityChange);
-        velocityChange.z = Mathf.Clamp(velocityChange.z, -maxVelocityChange, maxVelocityChange);
-        velocityChange.y = 0;
-        GetComponent<Rigidbody>().AddForce(velocityChange, ForceMode.VelocityChange);
-
-        if (grounded)
+        if (!frozen)
         {
-            if (canJump && Input.GetButton("Jump"))
+            Vector3 targetVelocity = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+            targetVelocity = transform.TransformDirection(targetVelocity);
+            targetVelocity *= speed;
+
+            Vector3 velocity = GetComponent<Rigidbody>().velocity;
+            Vector3 velocityChange = (targetVelocity - velocity);
+            velocityChange.x = Mathf.Clamp(velocityChange.x, -maxVelocityChange, maxVelocityChange);
+            velocityChange.z = Mathf.Clamp(velocityChange.z, -maxVelocityChange, maxVelocityChange);
+            velocityChange.y = 0;
+            GetComponent<Rigidbody>().AddForce(velocityChange, ForceMode.VelocityChange);
+
+            if (grounded)
             {
-                GetComponent<Rigidbody>().velocity = new Vector3(velocity.x, CalculateJumpVerticalSpeed(), velocity.z);
+                if (canJump && Input.GetButton("Jump"))
+                {
+                    GetComponent<Rigidbody>().velocity = new Vector3(velocity.x, CalculateJumpVerticalSpeed(), velocity.z);
+                }
             }
+
+            GetComponent<Rigidbody>().AddForce(new Vector3(0, -gravity * GetComponent<Rigidbody>().mass, 0));
+
+            grounded = false;
         }
-
-        GetComponent<Rigidbody>().AddForce(new Vector3(0, -gravity * GetComponent<Rigidbody>().mass, 0));
-
-        grounded = false;
     }
 
     void OnCollisionStay()
