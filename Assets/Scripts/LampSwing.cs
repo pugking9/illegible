@@ -13,7 +13,6 @@ public class LampSwing : MonoBehaviour {
         rb.AddForce(0, 0, 100 - rb.velocity.z);
     }
 	
-	// Update is called once per frame
 	void FixedUpdate() {
         I++;
         Vel = (rb.velocity.z * 10);

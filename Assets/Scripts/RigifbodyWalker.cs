@@ -10,14 +10,11 @@ public class RigifbodyWalker : MonoBehaviour {
     public float jumpHeight = 2.0f;
     public Camera playerCam;
     public int sensitivity = 10;
+    public bool frozen = true;
 
     private bool grounded = false;
     private float pitch = 0.0f;
     private float yaw = 0.0f;
-    private bool frozen = true;
-    
-
-
 
     void Awake()
     {
